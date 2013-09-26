@@ -53,7 +53,7 @@ Methods
 
 To load this library,
 
-1. you need to specify this library's PATH in ngx_lua's [lua_package_path](http://wiki.nginx.org/HttpLuaModule#lua_package_path) directive.
+1. you need to specify this library's path in ngx_lua's [lua_package_path](http://wiki.nginx.org/HttpLuaModule#lua_package_path) directive. For example, `lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";`.
 2. you use `require` to load the library into a local Lua variable:
 
     local lock = require "resty.lock"
