@@ -122,10 +122,10 @@ One common use case for this library is to limit concurrent backend queries for 
 
 The basic workflow for a cache lock is as follows:
 
-1. Check the cache for a hit with the key, if a miss happens, proceed to step 2.
-2. Instantiate a `resty.lock` object, call the [lock](#lock) method on the key, and check the 1st return value, the lock waiting time. If it is `nil`, handle the error; if it is `0`, then proceed to step 4; otherwise it must be nonzero, then proceed to step 3.
-3. because the lock waiting is nonzero, it means some other Lua thread has just acquired the lock, which may already put the value into the cache. So check if the cache again for a hit. If it is still a miss, proceed to step 4; otherwise release the lock by calling [unlock](#unlock) before returning the cached value.
-4. Query the backend (the data source) for the value, put it into the cache, and then release the lock currently being held by calling [unlock](#unlock).
+1. Check the cache for a hit with the key. If a cache miss happens, proceed to step 2.
+2. Instantiate a `resty.lock` object, call the [lock](#lock) method on the key, and check the 1st return value, i.e., the lock waiting time. If it is `nil`, handle the error. If it is `0`, then proceed to step 4. Otherwise it must be nonzero, then proceed to step 3.
+3. Because the lock waiting is nonzero, it means some other Lua thread has just acquired the lock, which may have already put the value into the cache. So check the cache again for a hit. If it is still a miss, proceed to step 4; otherwise release the lock by calling [unlock](#unlock) and then return the cached value.
+4. Query the backend (the data source) for the value, put the result into the cache, and then release the lock currently held by calling [unlock](#unlock).
 
 Prerequisites
 =============
