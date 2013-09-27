@@ -91,6 +91,8 @@ Returns the waiting time (in seconds) if the lock is successfully acquired. Othe
 
 The waiting time is not from the wallclock, but rather is from simply adding up all the waiting "steps". A nonzero `elapsed` return value indicates that someone else has just hold this lock. This is useful for [cache locks](#for-cache-locks).
 
+When this method is waiting on fetching the lock, no operating system threads will be blocked and the current Lua "light thread" will be automatically yielded behind the scene.
+
 It is strongly recommended to always call the [unlock()](#unlock) method to actively release the lock as soon as possible.
 
 If the [unlock()](#unlock) method is never called after this method call, the lock will get released when
