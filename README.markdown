@@ -229,6 +229,11 @@ Prerequisites
 * [LuaJIT](http://luajit.org) 2.0+
 * [ngx_lua](http://wiki.nginx.org/HttpLuaModule) 0.8.10+
 
+TODO
+====
+
+* We should simplify the current implementation when LuaJIT 2.1 gets support for `__gc` metamethod on normal Lua tables. Right now we are using an FFI cdata and a ref/unref memo table to work around this, which is rather ugly and a bit inefficient.
+
 Author
 ======
 
