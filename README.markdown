@@ -182,6 +182,9 @@ Below is a kinda complete code example that demonstrates the idea.
             return fail("failed to unlock: ", err)
         end
 
+        -- FIXME: we should handle the backend miss more carefully
+        -- here, like inserting a stub value into the cache.
+
         ngx.say("no value found")
         return
     end
@@ -216,6 +219,7 @@ Several important things to note in the example above:
 
 1. You need to release the lock as soon as possible, even when some other unrelated errors happen.
 2. You need to update the cache with the result got from the backend *before* releasing the lock so other threads already waiting on the lock can get cached value when they get the lock afterwards.
+3. When the backend returns no value at all, we should handle the case carefully by inserting some stub value into the cache.
 
 Prerequisites
 =============
