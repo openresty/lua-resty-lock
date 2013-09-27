@@ -253,7 +253,7 @@ Bugs and Patches
 Please report bugs or submit patches by
 
 1. creating a ticket on the [GitHub Issue Tracker](http://github.com/agentzh/lua-resty-lock/issues),
-1. or posting to the [OpenResty community](#Community).
+1. or posting to the [OpenResty community](#community).
 
 Author
 ======
