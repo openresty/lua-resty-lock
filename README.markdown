@@ -115,6 +115,11 @@ Returns `1` on success. Returns `nil` and a string describing the error otherwis
 
 If you call `unlock` when no lock is currently held, the error "unlocked" will be returned.
 
+For multiple light threads
+==========================
+
+It is always a bad idea to share a single `resty.lock` object instance across multiple Lua "light threads" because the object itself is stateful and is vulnerable to race conditions. It is highly recommended to allocate separate `resty.lock` object instances for each "light thread" that need one.
+
 For Cache Locks
 ===============
 
