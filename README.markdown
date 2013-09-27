@@ -127,6 +127,86 @@ The basic workflow for a cache lock is as follows:
 3. Because the lock waiting is nonzero, it means some other Lua thread has just acquired the lock, which may have already put the value into the cache. So check the cache again for a hit. If it is still a miss, proceed to step 4; otherwise release the lock by calling [unlock](#unlock) and then return the cached value.
 4. Query the backend (the data source) for the value, put the result into the cache, and then release the lock currently held by calling [unlock](#unlock).
 
+Below is a kinda complete code example that demonstrates the idea.
+
+    local resty_lock = require "resty.lock"
+    local cache = ngx.shared.my_cache
+
+    -- step 1:
+    local val, err = cache:get(key)
+    if val then
+        ngx.say("result: ", val)
+        return
+    end
+
+    if err then
+        return fail("failed to get key from shm: ", err)
+    end
+
+    -- cache miss!
+    -- step 2:
+    local lock = resty_lock:new("my_locks")
+    local elapsed, err = lock:lock(key)
+    if not elapsed then
+        return fail("failed to acquire the lock: ", err)
+    end
+
+    -- lock successfully acquired!
+
+    if elapsed > 0 then
+        -- step 3:
+        -- someone might have already put the value into the cache
+        -- so we check it here again:
+        val, err = cache:get(key)
+        if val then
+            local ok, err = lock:unlock()
+            if not ok then
+                return fail("failed to unlock: ", err)
+            end
+
+            ngx.say("result: ", val)
+            return
+        end
+    end
+
+    --- step 4:
+    local val = fetch_redis(key)
+    if not val then
+        local ok, err = lock:unlock()
+        if not ok then
+            return fail("failed to unlock: ", err)
+        end
+
+        ngx.say("no value found")
+        return
+    end
+
+    -- update the shm cache with the newly fetched value
+    local ok, err = cache:set(key, val, 1)
+    if not ok then
+        local ok, err = lock:unlock()
+        if not ok then
+            return fail("failed to unlock: ", err)
+        end
+
+        return fail("failed to update shm cache: ", err)
+    end
+
+    local ok, err = lock:unlock()
+    if not ok then
+        return fail("failed to unlock: ", err)
+    end
+
+    ngx.say("result: ", val)
+
+Here we assume that we use the ngx_lua shared memory dictionary to cache the Redis query results and we have the following configurations in `nginx.conf`:
+
+    # you may want to change the dictionary size for your cases.
+    lua_shared_dict my_cache 10m;
+    lua_shared_dict my_locks 1m;
+
+The `my_cache` dictionary is for the data cache while the `my_locks` dictionary is for `resty.lock` itself.
+
 Prerequisites
 =============
 
