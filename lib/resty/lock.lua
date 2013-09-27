@@ -5,8 +5,11 @@ local ffi = require "ffi"
 local ffi_new = ffi.new
 local shared = ngx.shared
 local sleep = ngx.sleep
-local shdic_mt
+local shdict_mt
 local debug = ngx.config.debug
+local setmetatable = setmetatable
+local getmetatable = getmetatable
+local tonumber = tonumber
 
 
 local _M = { _VERSION = '0.01' }
@@ -51,7 +54,8 @@ if debug then _M.unref_obj = unref_obj end
 
 local function gc_lock(cdata)
     local key_id = tonumber(cdata.key_id)
-    -- print("key_id: ", key_id, ", key: ", memo[key_id], "dict: ", type(memo[cdata.dict_id]))
+    -- print("key_id: ", key_id, ", key: ", memo[key_id], "dict: ",
+    --       type(memo[cdata.dict_id]))
     if key_id > 0 then
         local key = memo[key_id]
         unref_obj(key_id)
