@@ -212,7 +212,7 @@ Here we assume that we use the ngx_lua shared memory dictionary to cache the Red
 
 The `my_cache` dictionary is for the data cache while the `my_locks` dictionary is for `resty.lock` itself.
 
-Several important things in the example above:
+Several important things to note in the example above:
 
 1. You need to release the lock as soon as possible, even when some other unrelated errors happen.
 2. You need to update the cache with the result got from the backend *before* releasing the lock so other threads already waiting on the lock can get cached value when they get the lock afterwards.
