@@ -1,7 +1,7 @@
 Name
 ====
 
-lua-resty-lock - Simple shm-based nonblocking locking API
+lua-resty-lock - Simple shm-based nonblocking lock API
 
 Status
 ======
