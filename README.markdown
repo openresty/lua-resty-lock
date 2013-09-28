@@ -125,7 +125,7 @@ It is always a bad idea to share a single `resty.lock` object instance across mu
 For Cache Locks
 ===============
 
-One common use case for this library is to limit concurrent backend queries for the same key when a cache miss happens. This usage is similar to the standard ngx_proxy module's [proxy_cache_lock](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock) directive.
+One common use case for this library is avoid the so-called "dog-pile effect", that is, to limit concurrent backend queries for the same key when a cache miss happens. This usage is similar to the standard ngx_proxy module's [proxy_cache_lock](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock) directive.
 
 The basic workflow for a cache lock is as follows:
 
