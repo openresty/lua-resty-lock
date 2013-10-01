@@ -14,6 +14,8 @@ Synopsis
     # nginx.conf
 
     http {
+        # you do not need the following line if you are using the
+        #   ngx_openresty bundle:
         lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";
 
         lua_shared_dict my_locks 100k;
@@ -228,6 +230,28 @@ Prerequisites
 
 * [LuaJIT](http://luajit.org) 2.0+
 * [ngx_lua](http://wiki.nginx.org/HttpLuaModule) 0.8.10+
+
+Installation
+============
+
+It is recommended to use the latest [ngx_openresty bundle](http://openresty.org) directly where this library
+is bundled and enabled by default. At least ngx_openresty 1.4.2.9 is required. And you need to enable LuaJIT when building your ngx_openresty
+bundle by passing the `--with-luajit` option to its `./configure` script. No extra Nginx configuration is required.
+
+If you want to use this library with your own Nginx build (with ngx_lua), then you need to
+ensure you are using at least ngx_lua 0.8.10. Also, You need to configure
+the [lua_package_path](http://wiki.nginx.org/HttpLuaModule#lua_package_path) directive to
+add the path of your lua-resty-lock source tree to ngx_lua's Lua module search path, as in
+
+    # nginx.conf
+    http {
+        lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";
+        ...
+    }
+
+and then load the library in Lua:
+
+    local lock = require "resty.lock"
 
 TODO
 ====
