@@ -91,7 +91,7 @@ The length of the key string must not be larger than 65535 bytes.
 
 Returns the waiting time (in seconds) if the lock is successfully acquired. Otherwise returns `nil` and a string describing the error.
 
-The waiting time is not from the wallclock, but rather is from simply adding up all the waiting "steps". A nonzero `elapsed` return value indicates that someone else has just hold this lock. This is useful for [cache locks](#for-cache-locks).
+The waiting time is not from the wallclock, but rather is from simply adding up all the waiting "steps". A nonzero `elapsed` return value indicates that someone else has just hold this lock. But a zero return value cannot gurantee that no one else has just acquired and released the lock.
 
 When this method is waiting on fetching the lock, no operating system threads will be blocked and the current Lua "light thread" will be automatically yielded behind the scene.
 
@@ -132,8 +132,8 @@ One common use case for this library is avoid the so-called "dog-pile effect", t
 The basic workflow for a cache lock is as follows:
 
 1. Check the cache for a hit with the key. If a cache miss happens, proceed to step 2.
-2. Instantiate a `resty.lock` object, call the [lock](#lock) method on the key, and check the 1st return value, i.e., the lock waiting time. If it is `nil`, handle the error. If it is `0`, then proceed to step 4. Otherwise it must be nonzero, then proceed to step 3.
-3. Because the lock waiting is nonzero, it means some other Lua thread has just acquired the lock, which may have already put the value into the cache. So check the cache again for a hit. If it is still a miss, proceed to step 4; otherwise release the lock by calling [unlock](#unlock) and then return the cached value.
+2. Instantiate a `resty.lock` object, call the [lock](#lock) method on the key, and check the 1st return value, i.e., the lock waiting time. If it is `nil`, handle the error; otherwise proceed to step 3.
+3. Check the cache again for a hit. If it is still a miss, proceed to step 4; otherwise release the lock by calling [unlock](#unlock) and then return the cached value.
 4. Query the backend (the data source) for the value, put the result into the cache, and then release the lock currently held by calling [unlock](#unlock).
 
 Below is a kinda complete code example that demonstrates the idea.
@@ -162,20 +162,18 @@ Below is a kinda complete code example that demonstrates the idea.
 
     -- lock successfully acquired!
 
-    if elapsed > 0 then
-        -- step 3:
-        -- someone might have already put the value into the cache
-        -- so we check it here again:
-        val, err = cache:get(key)
-        if val then
-            local ok, err = lock:unlock()
-            if not ok then
-                return fail("failed to unlock: ", err)
-            end
-
-            ngx.say("result: ", val)
-            return
+    -- step 3:
+    -- someone might have already put the value into the cache
+    -- so we check it here again:
+    val, err = cache:get(key)
+    if val then
+        local ok, err = lock:unlock()
+        if not ok then
+            return fail("failed to unlock: ", err)
         end
+
+        ngx.say("result: ", val)
+        return
     end
 
     --- step 4:
