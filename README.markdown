@@ -11,6 +11,7 @@ This library is still under early development and is still experimental.
 Synopsis
 ========
 
+```lua
     # nginx.conf
 
     http {
@@ -42,6 +43,7 @@ Synopsis
             }
         }
     }
+```
 
 Description
 ===========
@@ -58,7 +60,9 @@ To load this library,
 1. you need to specify this library's path in ngx_lua's [lua_package_path](http://wiki.nginx.org/HttpLuaModule#lua_package_path) directive. For example, `lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";`.
 2. you use `require` to load the library into a local Lua variable:
 
+```lua
     local lock = require "resty.lock"
+```
 
 new
 ---
@@ -138,6 +142,7 @@ The basic workflow for a cache lock is as follows:
 
 Below is a kinda complete code example that demonstrates the idea.
 
+```lua
     local resty_lock = require "resty.lock"
     local cache = ngx.shared.my_cache
 
@@ -208,12 +213,15 @@ Below is a kinda complete code example that demonstrates the idea.
     end
 
     ngx.say("result: ", val)
+```
 
 Here we assume that we use the ngx_lua shared memory dictionary to cache the Redis query results and we have the following configurations in `nginx.conf`:
 
+```nginx
     # you may want to change the dictionary size for your cases.
     lua_shared_dict my_cache 10m;
     lua_shared_dict my_locks 1m;
+```
 
 The `my_cache` dictionary is for the data cache while the `my_locks` dictionary is for `resty.lock` itself.
 
@@ -241,15 +249,19 @@ ensure you are using at least ngx_lua 0.8.10. Also, You need to configure
 the [lua_package_path](http://wiki.nginx.org/HttpLuaModule#lua_package_path) directive to
 add the path of your lua-resty-lock source tree to ngx_lua's Lua module search path, as in
 
+```nginx
     # nginx.conf
     http {
         lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";
         ...
     }
+```
 
 and then load the library in Lua:
 
+```lua
     local lock = require "resty.lock"
+```
 
 TODO
 ====
