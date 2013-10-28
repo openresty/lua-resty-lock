@@ -3,6 +3,30 @@ Name
 
 lua-resty-lock - Simple shm-based nonblocking lock API
 
+Table of Contents
+=================
+
+* [Name](#name)
+* [Status](#status)
+* [Synopsis](#synopsis)
+* [Description](#description)
+* [Methods](#methods)
+    * [new](#new)
+    * [lock](#lock)
+    * [unlock](#unlock)
+* [For Multiple Lua Light Threads](#for-multiple-lua-light-threads)
+* [For Cache Locks](#for-cache-locks)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [TODO](#todo)
+* [Community](#community)
+    * [English Mailing List](#english-mailing-list)
+    * [Chinese Mailing List](#chinese-mailing-list)
+* [Bugs and Patches](#bugs-and-patches)
+* [Author](#author)
+* [Copyright and License](#copyright-and-license)
+* [See Also](#see-also)
+
 Status
 ======
 
@@ -52,6 +76,8 @@ This library implements a simple mutex lock in a similar way to ngx_proxy module
 
 Under the hood, this library uses [ngx_lua](http://wiki.nginx.org/HttpLuaModule) module's shared memory dictionaries. The lock waiting is nonblocking because we use stepwise [ngx.sleep](http://wiki.nginx.org/HttpLuaModule#ngx.sleep) to poll the lock periodically.
 
+[Back to TOC](#table-of-contents)
+
 Methods
 =======
 
@@ -63,6 +89,8 @@ To load this library,
 ```lua
     local lock = require "resty.lock"
 ```
+
+[Back to TOC](#table-of-contents)
 
 new
 ---
@@ -84,6 +112,8 @@ Specifies the initial step (in seconds) of sleeping when waiting for the lock. D
 Specifies the step increasing ratio. Default to 2, that is, the step size doubles at each waiting iteration.
 * `max_step`
 Specifies the maximal step size (i.e., sleep interval, in seconds) allowed. See also the `step` and `ratio` options). Default to 0.5 (seconds).
+
+[Back to TOC](#table-of-contents)
 
 lock
 ----
@@ -113,6 +143,8 @@ Common errors for this method call is
 
 Other possible errors are from ngx_lua's shared dictionary API.
 
+[Back to TOC](#table-of-contents)
+
 unlock
 ------
 `syntax: ok, err = obj:unlock()`
@@ -123,10 +155,14 @@ Returns `1` on success. Returns `nil` and a string describing the error otherwis
 
 If you call `unlock` when no lock is currently held, the error "unlocked" will be returned.
 
+[Back to TOC](#table-of-contents)
+
 For Multiple Lua Light Threads
 ==============================
 
 It is always a bad idea to share a single `resty.lock` object instance across multiple ngx_lua "light threads" because the object itself is stateful and is vulnerable to race conditions. It is highly recommended to always allocate a separate `resty.lock` object instance for each "light thread" that needs one.
+
+[Back to TOC](#table-of-contents)
 
 For Cache Locks
 ===============
@@ -231,11 +267,15 @@ Several important things to note in the example above:
 2. You need to update the cache with the result got from the backend *before* releasing the lock so other threads already waiting on the lock can get cached value when they get the lock afterwards.
 3. When the backend returns no value at all, we should handle the case carefully by inserting some stub value into the cache.
 
+[Back to TOC](#table-of-contents)
+
 Prerequisites
 =============
 
 * [LuaJIT](http://luajit.org) 2.0+
 * [ngx_lua](http://wiki.nginx.org/HttpLuaModule) 0.8.10+
+
+[Back to TOC](#table-of-contents)
 
 Installation
 ============
@@ -263,23 +303,33 @@ and then load the library in Lua:
     local lock = require "resty.lock"
 ```
 
+[Back to TOC](#table-of-contents)
+
 TODO
 ====
 
 * We should simplify the current implementation when LuaJIT 2.1 gets support for `__gc` metamethod on normal Lua tables. Right now we are using an FFI cdata and a ref/unref memo table to work around this, which is rather ugly and a bit inefficient.
 
+[Back to TOC](#table-of-contents)
+
 Community
 =========
+
+[Back to TOC](#table-of-contents)
 
 English Mailing List
 --------------------
 
 The [openresty-en](https://groups.google.com/group/openresty-en) mailing list is for English speakers.
 
+[Back to TOC](#table-of-contents)
+
 Chinese Mailing List
 --------------------
 
 The [openresty](https://groups.google.com/group/openresty) mailing list is for Chinese speakers.
+
+[Back to TOC](#table-of-contents)
 
 Bugs and Patches
 ================
@@ -289,10 +339,14 @@ Please report bugs or submit patches by
 1. creating a ticket on the [GitHub Issue Tracker](http://github.com/agentzh/lua-resty-lock/issues),
 1. or posting to the [OpenResty community](#community).
 
+[Back to TOC](#table-of-contents)
+
 Author
 ======
 
 Yichun "agentzh" Zhang (章亦春) <agentzh@gmail.com>, CloudFlare Inc.
+
+[Back to TOC](#table-of-contents)
 
 Copyright and License
 =====================
@@ -311,7 +365,11 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+[Back to TOC](#table-of-contents)
+
 See Also
 ========
 * the ngx_lua module: http://wiki.nginx.org/HttpLuaModule
 * OpenResty: http://openresty.org
+[Back to TOC](#table-of-contents)
+
