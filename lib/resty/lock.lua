@@ -116,6 +116,10 @@ end
 
 
 function _M.lock(self, key)
+    if not key then
+        return nil, "nil key"
+    end
+
     local dict = self.dict
     local cdata = self.cdata
     if cdata.key_id > 0 then

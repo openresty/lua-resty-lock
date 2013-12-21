@@ -363,3 +363,32 @@ GET /t
 --- no_error_log
 [error]
 
+
+
+=== TEST 11: lock on a nil key
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock = require "resty.lock"
+            local lock = lock:new("cache_locks")
+            local elapsed, err = lock:lock(nil)
+            if elapsed then
+                ngx.say("lock: ", elapsed, ", ", err)
+                local ok, err = lock:unlock()
+                if not ok then
+                    ngx.say("failed to unlock: ", err)
+                end
+            else
+                ngx.say("failed to lock: ", err)
+            end
+        ';
+    }
+--- request
+GET /t
+--- response_body
+failed to lock: nil key
+
+--- no_error_log
+[error]
+
