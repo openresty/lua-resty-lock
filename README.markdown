@@ -30,7 +30,7 @@ Table of Contents
 Status
 ======
 
-This library is still under early development and is still experimental.
+This library is still under early development and is production ready.
 
 Synopsis
 ========

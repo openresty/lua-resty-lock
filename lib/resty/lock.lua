@@ -1,4 +1,4 @@
--- Copyright (C) 2013 Yichun Zhang (agentzh)
+-- Copyright (C) Yichun Zhang (agentzh)
 
 
 local ffi = require "ffi"
@@ -12,7 +12,7 @@ local getmetatable = getmetatable
 local tonumber = tonumber
 
 
-local _M = { _VERSION = '0.02' }
+local _M = { _VERSION = '0.03' }
 local mt = { __index = _M }
 
 
