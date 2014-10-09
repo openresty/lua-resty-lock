@@ -54,14 +54,13 @@ if debug then _M.unref_obj = unref_obj end
 
 local function gc_lock(cdata)
     local key_id = tonumber(cdata.key_id)
+    local dict_id = tonumber(cdata.dict_id)
     -- print("key_id: ", key_id, ", key: ", memo[key_id], "dict: ",
     --       type(memo[cdata.dict_id]))
     if key_id > 0 then
         local key = memo[key_id]
         unref_obj(key_id)
-        local dict_id = tonumber(cdata.dict_id)
         local dict = memo[dict_id]
-        unref_obj(dict_id)
         -- print("dict.delete type: ", type(dict.delete))
         local ok, err = dict:delete(key)
         if not ok then
@@ -69,6 +68,7 @@ local function gc_lock(cdata)
         end
         cdata.key_id = 0
     end
+    unref_obj(dict_id)
 end
 
 
@@ -185,7 +185,6 @@ end
 function _M.unlock(self)
     local dict = self.dict
     local cdata = self.cdata
-    unref_obj(tonumber(cdata.dict_id))
     local key_id = tonumber(cdata.key_id)
     if key_id <= 0 then
         return nil, "unlocked"
