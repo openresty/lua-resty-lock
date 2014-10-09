@@ -392,3 +392,39 @@ failed to lock: nil key
 --- no_error_log
 [error]
 
+
+
+=== TEST 12: memo size
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock = require "resty.lock"
+            local memo = lock.memo
+            local lock1 = lock:new("cache_locks", { timeout = 0.01 })
+            for i = 1, 3 do
+                lock1:lock("lock_key")
+                lock1:unlock()
+                collectgarbage("collect")
+            end
+
+            local lock2 = lock:new("cache_locks", { timeout = 0.01 })
+            local lock3 = lock:new("cache_locks", { timeout = 0.01 })
+            lock2:lock("lock_key")
+            lock3:lock("lock_key")
+            collectgarbage("collect")
+
+            ngx.say(#memo)
+
+            lock2:unlock()
+            lock3:unlock()
+            collectgarbage("collect")
+        ';
+    }
+--- request
+GET /t
+--- response_body
+4
+--- no_error_log
+[error]
+
