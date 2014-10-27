@@ -65,7 +65,7 @@ local function gc_lock(cdata)
         -- print("dict.delete type: ", type(dict.delete))
         local ok, err = dict:delete(key)
         if not ok then
-            ngx.log(ngx.ERR, "failed to delete ", key)
+            ngx.log(ngx.ERR, 'failed to delete key "', key, '": ', err)
         end
         cdata.key_id = 0
     end
