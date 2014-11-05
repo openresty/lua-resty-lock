@@ -427,3 +427,44 @@ GET /t
 --- no_error_log
 [error]
 
+
+
+=== TEST 13: timed out locks (0 timeout)
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock = require "resty.lock"
+            for i = 1, 2 do
+                local lock1 = lock:new("cache_locks", { timeout = 0 })
+                local lock2 = lock:new("cache_locks", { timeout = 0 })
+
+                local elapsed, err = lock1:lock("foo")
+                ngx.say("lock 1: lock: ", elapsed, ", ", err)
+
+                local elapsed, err = lock2:lock("foo")
+                ngx.say("lock 2: lock: ", elapsed, ", ", err)
+
+                local ok, err = lock1:unlock()
+                ngx.say("lock 1: unlock: ", ok, ", ", err)
+
+                local ok, err = lock2:unlock()
+                ngx.say("lock 2: unlock: ", ok, ", ", err)
+            end
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock 1: lock: 0, nil
+lock 2: lock: nil, timeout
+lock 1: unlock: 1, nil
+lock 2: unlock: nil, unlocked
+lock 1: lock: 0, nil
+lock 2: lock: nil, timeout
+lock 1: unlock: 1, nil
+lock 2: unlock: nil, unlocked
+
+--- no_error_log
+[error]
+

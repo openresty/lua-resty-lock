@@ -106,6 +106,7 @@ The options table accepts the following options:
 Specifies expiration time (in seconds) for the lock entry in the shared memory dictionary. You can specify up to `0.001` seconds. Default to 30 (seconds). Even if the invoker does not call `unlock` or the object holding the lock is not GC'd, the lock will be released after this time. So deadlock won't happen even when the worker process holding the lock crashes.
 * `timeout`
 Specifies the maximal waiting time (in seconds) for the [lock](#lock) method calls on the current object instance. You can specify up to `0.001` seconds. Default to 5 (seconds). This option value cannot be bigger than `exptime`. This timeout is to prevent a [lock](#lock) method call from waiting forever.
+You can specify `0` to make the [lock](#lock) method return immediately without waiting if it cannot acquire the lock right away.
 * `step`
 Specifies the initial step (in seconds) of sleeping when waiting for the lock. Default to `0.001` (seconds). When the [lock](#lock) method is waiting on a busy lock, it sleeps by steps. The step size is increased by a ratio (specified by the `ratio` option) until reaching the step size limit (specified by the `max_step` option).
 * `ratio`
