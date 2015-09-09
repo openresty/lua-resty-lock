@@ -74,7 +74,7 @@ Description
 
 This library implements a simple mutex lock in a similar way to ngx_proxy module's [proxy_cache_lock directive](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_lock).
 
-Under the hood, this library uses [ngx_lua](https://github.com/chaoslawful/lua-nginx-module) module's shared memory dictionaries. The lock waiting is nonblocking because we use stepwise [ngx.sleep](https://github.com/chaoslawful/lua-nginx-module#ngxsleep) to poll the lock periodically.
+Under the hood, this library uses [ngx_lua](https://github.com/openresty/lua-nginx-module) module's shared memory dictionaries. The lock waiting is nonblocking because we use stepwise [ngx.sleep](https://github.com/openresty/lua-nginx-module#ngxsleep) to poll the lock periodically.
 
 [Back to TOC](#table-of-contents)
 
@@ -83,7 +83,7 @@ Methods
 
 To load this library,
 
-1. you need to specify this library's path in ngx_lua's [lua_package_path](https://github.com/chaoslawful/lua-nginx-module#lua_package_path) directive. For example, `lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";`.
+1. you need to specify this library's path in ngx_lua's [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive. For example, `lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";`.
 2. you use `require` to load the library into a local Lua variable:
 
 ```lua
@@ -98,7 +98,7 @@ new
 
 `syntax: obj = lock:new(dict_name, opts)`
 
-Creates a new lock object instance by specifying the shared dictionary name (created by [lua_shared_dict](http://https://github.com/chaoslawful/lua-nginx-module#lua_shared_dict)) and an optional options table `opts`.
+Creates a new lock object instance by specifying the shared dictionary name (created by [lua_shared_dict](http://https://github.com/openresty/lua-nginx-module#lua_shared_dict)) and an optional options table `opts`.
 
 The options table accepts the following options:
 
@@ -274,7 +274,7 @@ Prerequisites
 =============
 
 * [LuaJIT](http://luajit.org) 2.0+
-* [ngx_lua](https://github.com/chaoslawful/lua-nginx-module) 0.8.10+
+* [ngx_lua](https://github.com/openresty/lua-nginx-module) 0.8.10+
 
 [Back to TOC](#table-of-contents)
 
@@ -287,7 +287,7 @@ bundle by passing the `--with-luajit` option to its `./configure` script. No ext
 
 If you want to use this library with your own Nginx build (with ngx_lua), then you need to
 ensure you are using at least ngx_lua 0.8.10. Also, You need to configure
-the [lua_package_path](https://github.com/chaoslawful/lua-nginx-module#lua_package_path) directive to
+the [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive to
 add the path of your lua-resty-lock source tree to ngx_lua's Lua module search path, as in
 
 ```nginx
@@ -337,7 +337,7 @@ Bugs and Patches
 
 Please report bugs or submit patches by
 
-1. creating a ticket on the [GitHub Issue Tracker](http://github.com/openresty/lua-resty-lock/issues),
+1. creating a ticket on the [GitHub Issue Tracker](https://github.com/openresty/lua-resty-lock/issues),
 1. or posting to the [OpenResty community](#community).
 
 [Back to TOC](#table-of-contents)
@@ -354,7 +354,7 @@ Copyright and License
 
 This module is licensed under the BSD license.
 
-Copyright (C) 2013-2014, by Yichun "agentzh" Zhang, CloudFlare Inc.
+Copyright (C) 2013-2015, by Yichun "agentzh" Zhang, CloudFlare Inc.
 
 All rights reserved.
 
@@ -370,7 +370,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 See Also
 ========
-* the ngx_lua module: https://github.com/chaoslawful/lua-nginx-module
+* the ngx_lua module: https://github.com/openresty/lua-nginx-module
 * OpenResty: http://openresty.org
-[Back to TOC](#table-of-contents)
 
+[Back to TOC](#table-of-contents)
