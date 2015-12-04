@@ -128,7 +128,7 @@ function _M.lock(self, key)
         return nil, "locked"
     end
     local exptime = self.exptime
-    local ok, err = dict:add(key, true, exptime)
+    local ok, err = dict:safe_add(key, true, exptime)
     if ok then
         cdata.key_id = ref_obj(key)
         if not shdict_mt then
@@ -154,7 +154,7 @@ function _M.lock(self, key)
         elapsed = elapsed + step
         timeout = timeout - step
 
-        local ok, err = dict:add(key, true, exptime)
+        local ok, err = dict:safe_add(key, true, exptime)
         if ok then
             cdata.key_id = ref_obj(key)
             if not shdict_mt then
