@@ -94,7 +94,7 @@ function _M.new(_, dict_name, opts)
         step = opts.step
         ratio = opts.ratio
         max_step = opts.max_step
-        save_add = opts.save_add
+        safe_add = opts.safe_add
     end
 
     if not exptime then
@@ -108,7 +108,7 @@ function _M.new(_, dict_name, opts)
     local self = {
         cdata = cdata,
         dict = dict,
-        dict_add = save_add and dict.save_add or dict.add,
+        dict_add = safe_add and dict.safe_add or dict.add,
         timeout = timeout or 5,
         exptime = exptime,
         step = step or 0.001,

@@ -468,3 +468,34 @@ lock 2: unlock: nil, unlocked
 --- no_error_log
 [error]
 
+
+
+=== TEST 14: serial lock and unlock with safe_add
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock = require "resty.lock"
+            for i = 1, 2 do
+                local lock = lock:new("cache_locks", {safe_add = true})
+                local elapsed, err = lock:lock("foo")
+                ngx.say("lock: ", elapsed, ", ", err)
+                local ok, err = lock:unlock()
+                if not ok then
+                    ngx.say("failed to unlock: ", err)
+                end
+                ngx.say("unlock: ", ok)
+            end
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock: 0, nil
+unlock: 1
+lock: 0, nil
+unlock: 1
+
+--- no_error_log
+[error]
+
