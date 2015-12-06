@@ -499,3 +499,45 @@ unlock: 1
 --- no_error_log
 [error]
 
+
+
+=== TEST 15: use safe_add, dont have enough memory
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock  = require "resty.lock"
+            local cache = ngx.shared.cache_locks
+
+            cache:flush_all()
+            function full_dict( dict )
+                for i=1,10000 do
+                    local ok, err = dict:safe_set(string.rep("2", 2)..i, string.rep("2", 5)..i)
+                    if not ok then
+                        return
+                    end
+                end
+            end
+            full_dict(cache)
+
+            
+            local lock1 = lock:new("cache_locks", {safe_add = true, timeout = 0})
+            local elapsed, err = lock1:lock("foo")
+            ngx.say("lock: ", elapsed, ", ", err)
+
+            local lock2 = lock:new("cache_locks", {timeout = 0})
+            local elapsed, err = lock2:lock("foo")
+            ngx.say("lock: ", elapsed, ", ", err)
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock: nil, no memory
+lock: 0, nil
+
+--- no_error_log
+[error]
+
+
+
