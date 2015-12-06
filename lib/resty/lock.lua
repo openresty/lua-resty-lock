@@ -94,6 +94,7 @@ function _M.new(_, dict_name, opts)
         step = opts.step
         ratio = opts.ratio
         max_step = opts.max_step
+        save_add = opts.save_add
     end
 
     if not exptime then
@@ -107,6 +108,7 @@ function _M.new(_, dict_name, opts)
     local self = {
         cdata = cdata,
         dict = dict,
+        dict_add = save_add and dict.save_add or dict.add,
         timeout = timeout or 5,
         exptime = exptime,
         step = step or 0.001,
@@ -128,7 +130,7 @@ function _M.lock(self, key)
         return nil, "locked"
     end
     local exptime = self.exptime
-    local ok, err = dict:safe_add(key, true, exptime)
+    local ok, err = self.dict_add(dict, key, true, exptime)
     if ok then
         cdata.key_id = ref_obj(key)
         if not shdict_mt then
@@ -154,7 +156,7 @@ function _M.lock(self, key)
         elapsed = elapsed + step
         timeout = timeout - step
 
-        local ok, err = dict:safe_add(key, true, exptime)
+        local ok, err = self.dict_add(dict, key, true, exptime)
         if ok then
             cdata.key_id = ref_obj(key)
             if not shdict_mt then
