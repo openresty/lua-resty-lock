@@ -501,7 +501,7 @@ unlock: 1
 
 
 
-=== TEST 15: use safe_add = true, dont have enough memory
+=== TEST 15: the "safe_add" option is true: exhausting the shm zone memory
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
@@ -535,7 +535,7 @@ lock: nil, no memory
 
 
 
-=== TEST 16: use safe_add = false, dont have enough memory
+=== TEST 16: the "safe_add" option is false: exhausting the shm zone memory
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
@@ -569,7 +569,7 @@ lock: 0, nil
 
 
 
-=== TEST 17: use safe_add by default, dont have enough memory
+=== TEST 17: the "safe_add" option is off by default: exhausting the shm zone memory
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
