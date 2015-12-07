@@ -511,8 +511,8 @@ unlock: 1
 
             cache:flush_all()
             function full_dict( dict )
-                for i=1,10000 do
-                    local ok, err = dict:safe_set(string.rep("2", 2)..i, string.rep("2", 5)..i)
+                for i = 1, 10000 do
+                    local ok, err = dict:safe_set(string.rep("2", 2) .. i, string.rep("2", 5) .. i)
                     if not ok then
                         return
                     end
@@ -520,24 +520,21 @@ unlock: 1
             end
             full_dict(cache)
 
-            
             local lock1 = lock:new("cache_locks", {safe_add = true, timeout = 0})
             local elapsed, err = lock1:lock("foo")
-            ngx.say("lock: ", elapsed, ", ", err)
+            ngx.say("lock1: ", elapsed, ", ", err)
 
             local lock2 = lock:new("cache_locks", {timeout = 0})
             local elapsed, err = lock2:lock("foo")
-            ngx.say("lock: ", elapsed, ", ", err)
+            ngx.say("lock2: ", elapsed, ", ", err)
         ';
     }
 --- request
 GET /t
 --- response_body
-lock: nil, no memory
-lock: 0, nil
+lock1: nil, no memory
+lock2: 0, nil
 
 --- no_error_log
 [error]
-
-
 
