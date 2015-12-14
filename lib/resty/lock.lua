@@ -87,7 +87,7 @@ function _M.new(_, dict_name, opts)
     cdata.key_id = 0
     cdata.dict_id = ref_obj(dict)
 
-    local timeout, exptime, step, ratio, max_step
+    local timeout, exptime, step, ratio, max_step, safe_add
     if opts then
         timeout = opts.timeout
         exptime = opts.exptime
