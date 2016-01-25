@@ -5,17 +5,17 @@ local ffi = require "ffi"
 local ffi_new = ffi.new
 local shared = ngx.shared
 local sleep = ngx.sleep
+local log = ngx.log
 local shdict_mt
 local debug = ngx.config.debug
 local setmetatable = setmetatable
 local getmetatable = getmetatable
 local tonumber = tonumber
 
-
 local _M = { _VERSION = '0.04' }
 local mt = { __index = _M }
 
-
+local ERR = ngx.ERR
 local FREE_LIST_REF = 0
 
 -- FIXME: we don't need this when we have __gc metamethod support on Lua
@@ -65,7 +65,7 @@ local function gc_lock(cdata)
         -- print("dict.delete type: ", type(dict.delete))
         local ok, err = dict:delete(key)
         if not ok then
-            ngx.log(ngx.ERR, 'failed to delete key "', key, '": ', err)
+            log(ERR, 'failed to delete key "', key, '": ', err)
         end
         cdata.key_id = 0
     end
