@@ -133,6 +133,7 @@ When this method is waiting on fetching the lock, no operating system threads wi
 It is strongly recommended to always call the [unlock()](#unlock) method to actively release the lock as soon as possible.
 
 If the [unlock()](#unlock) method is never called after this method call, the lock will get released when
+
 1. the current `resty.lock` object instance is collected automatically by the Lua GC.
 2. the `exptime` for the lock entry is reached.
 
