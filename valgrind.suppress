@@ -67,3 +67,10 @@
     fun:ngx_epoll_notify_init
     fun:ngx_epoll_init
 }
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   epoll_ctl(event)
+   fun:epoll_ctl
+   fun:ngx_epoll_test_rdhup
+}
