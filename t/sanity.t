@@ -468,3 +468,37 @@ lock 2: unlock: nil, unlocked
 --- no_error_log
 [error]
 
+
+
+=== TEST 14: lock expired by itself when set per key
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local resty_lock = require "resty.lock"
+            local key = "blah"
+            local t, err = ngx.thread.spawn(function ()
+                local lock = resty_lock:new("cache_locks")
+                local elapsed, err = lock:lock(key, 0.1)
+                ngx.say("sub thread: lock: ", elapsed, " ", err)
+                ngx.sleep(0.1)
+                -- ngx.say("sub thread: unlock: ", lock:unlock(key))
+            end)
+
+            local lock = resty_lock:new("cache_locks", { max_step = 0.05 })
+            local elapsed, err = lock:lock(key)
+            ngx.say("main thread: lock: ", elapsed, " ", err)
+            ngx.say("main thread: unlock: ", lock:unlock())
+        ';
+    }
+--- request
+GET /t
+--- response_body_like chop
+^sub thread: lock: 0 nil
+main thread: lock: 0.11[2-4]\d* nil
+main thread: unlock: 1
+$
+--- no_error_log
+[error]
+
+
