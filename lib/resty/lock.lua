@@ -6,6 +6,8 @@ local ffi_new = ffi.new
 local shared = ngx.shared
 local sleep = ngx.sleep
 local log = ngx.log
+local max = math.max
+local min = math.min
 local debug = ngx.config.debug
 local setmetatable = setmetatable
 local tonumber = tonumber
@@ -98,8 +100,12 @@ function _M.new(_, dict_name, opts)
         exptime = 30
     end
 
-    if timeout and timeout > exptime then
-        timeout = exptime
+    if timeout then
+        timeout = min(timeout, exptime)
+
+        if step then
+            step = min(step, timeout)
+        end
     end
 
     local self = {
@@ -141,10 +147,6 @@ function _M.lock(self, key)
     local max_step = self.max_step
     local elapsed = 0
     while timeout > 0 do
-        if step > timeout then
-            step = timeout
-        end
-
         sleep(step)
         elapsed = elapsed + step
         timeout = timeout - step
@@ -163,13 +165,7 @@ function _M.lock(self, key)
             break
         end
 
-        step = step * ratio
-        if step <= 0 then
-            step = 0.001
-        end
-        if step > max_step then
-            step = max_step
-        end
+        step = min(max(0.001, step * ratio), timeout, max_step)
     end
 
     return nil, "timeout"
