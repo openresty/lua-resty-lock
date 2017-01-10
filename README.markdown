@@ -50,9 +50,12 @@ http {
 
         location = /t {
             content_by_lua '
-                local lock = require "resty.lock"
+                local resty_lock = require "resty.lock"
                 for i = 1, 2 do
-                    local lock = lock:new("my_locks")
+                    local lock, err = resty_lock:new("my_locks")
+                    if not lock then
+                        ngx.say("failed to create lock: ", err)
+                    end
 
                     local elapsed, err = lock:lock("my_key")
                     ngx.say("lock: ", elapsed, ", ", err)
@@ -94,11 +97,13 @@ To load this library,
 
 new
 ---
-`syntax: obj = lock:new(dict_name)`
+`syntax: obj, err = lock:new(dict_name)`
 
-`syntax: obj = lock:new(dict_name, opts)`
+`syntax: obj, err = lock:new(dict_name, opts)`
 
 Creates a new lock object instance by specifying the shared dictionary name (created by [lua_shared_dict](http://https://github.com/openresty/lua-nginx-module#lua_shared_dict)) and an optional options table `opts`.
+
+In case of failure, returns `nil` and a string describing the error.
 
 The options table accepts the following options:
 
@@ -197,7 +202,11 @@ Below is a kinda complete code example that demonstrates the idea.
 
     -- cache miss!
     -- step 2:
-    local lock = resty_lock:new("my_locks")
+    local lock, err = resty_lock:new("my_locks")
+    if not lock then
+        return fail("failed to create lock: ", err)
+    end
+
     local elapsed, err = lock:lock(key)
     if not elapsed then
         return fail("failed to acquire the lock: ", err)
@@ -302,7 +311,7 @@ add the path of your lua-resty-lock source tree to ngx_lua's Lua module search p
 and then load the library in Lua:
 
 ```lua
-    local lock = require "resty.lock"
+    local resty_lock = require "resty.lock"
 ```
 
 [Back to TOC](#table-of-contents)
