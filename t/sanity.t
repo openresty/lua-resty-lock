@@ -29,7 +29,7 @@ __DATA__
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             for i = 1, 2 do
                 collectgarbage("collect")
@@ -38,7 +38,7 @@ __DATA__
                 ngx.say("lock: ", elapsed, ", ", err)
             end
             collectgarbage("collect")
-        ';
+        }
     }
 --- request
 GET /t
@@ -55,7 +55,7 @@ lock: 0, nil
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             for i = 1, 2 do
                 local lock = lock:new("cache_locks")
@@ -67,7 +67,7 @@ lock: 0, nil
                 end
                 ngx.say("unlock: ", ok)
             end
-        ';
+        }
     }
 --- request
 GET /t
@@ -86,7 +86,7 @@ unlock: 1
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             for i = 1, 2 do
                 local lock1 = lock:new("cache_locks", { timeout = 0.01 })
@@ -104,7 +104,7 @@ unlock: 1
                 local ok, err = lock2:unlock()
                 ngx.say("lock 2: unlock: ", ok, ", ", err)
             end
-        ';
+        }
     }
 --- request
 GET /t
@@ -127,7 +127,7 @@ lock 2: unlock: nil, unlocked
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local resty_lock = require "resty.lock"
             local key = "blah"
             local t, err = ngx.thread.spawn(function ()
@@ -142,7 +142,7 @@ lock 2: unlock: nil, unlocked
             local elapsed, err = lock:lock(key)
             ngx.say("main thread: lock: ", elapsed, " ", err)
             ngx.say("main thread: unlock: ", lock:unlock())
-        ';
+        }
     }
 --- request
 GET /t
@@ -161,7 +161,7 @@ $
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local resty_lock = require "resty.lock"
             local key = "blah"
             local t, err = ngx.thread.spawn(function ()
@@ -176,7 +176,7 @@ $
             local elapsed, err = lock:lock(key)
             ngx.say("main thread: lock: ", elapsed, " ", err)
             ngx.say("main thread: unlock: ", lock:unlock())
-        ';
+        }
     }
 --- request
 GET /t
@@ -195,7 +195,7 @@ $
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local resty_lock = require "resty.lock"
             local key = "blah"
             local t, err = ngx.thread.spawn(function ()
@@ -210,7 +210,7 @@ $
             local elapsed, err = lock:lock(key)
             ngx.say("main thread: lock: ", elapsed, " ", err)
             ngx.say("main thread: unlock: ", lock:unlock())
-        ';
+        }
     }
 --- request
 GET /t
@@ -229,7 +229,7 @@ $
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local resty_lock = require "resty.lock"
             local key = "blah"
             local t, err = ngx.thread.spawn(function ()
@@ -244,7 +244,7 @@ $
             local elapsed, err = lock:lock(key)
             ngx.say("main thread: lock: ", elapsed, " ", err)
             ngx.say("main thread: unlock: ", lock:unlock())
-        ';
+        }
     }
 --- request
 GET /t
@@ -263,7 +263,7 @@ $
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local resty_lock = require "resty.lock"
             local key = "blah"
             local t, err = ngx.thread.spawn(function ()
@@ -278,7 +278,7 @@ $
             local elapsed, err = lock:lock(key)
             ngx.say("main thread: lock: ", elapsed, " ", err)
             ngx.say("main thread: unlock: ", lock:unlock())
-        ';
+        }
     }
 --- request
 GET /t
@@ -296,7 +296,7 @@ $
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             local memo = lock.memo
             local ref = lock.ref_obj("foo")
@@ -307,7 +307,7 @@ $
             ngx.say(#memo)
             lock.unref_obj(ref)
             ngx.say(#memo)
-        ';
+        }
     }
 --- request
 GET /t
@@ -326,7 +326,7 @@ GET /t
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             local memo = lock.memo
 
@@ -345,7 +345,7 @@ GET /t
                 lock.unref_obj(refs[2])
                 ngx.say(#memo)
             end
-        ';
+        }
     }
 --- request
 GET /t
@@ -368,7 +368,7 @@ GET /t
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             local lock = lock:new("cache_locks")
             local elapsed, err = lock:lock(nil)
@@ -381,7 +381,7 @@ GET /t
             else
                 ngx.say("failed to lock: ", err)
             end
-        ';
+        }
     }
 --- request
 GET /t
@@ -397,7 +397,7 @@ failed to lock: nil key
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             local memo = lock.memo
             local lock1 = lock:new("cache_locks", { timeout = 0.01 })
@@ -418,7 +418,7 @@ failed to lock: nil key
             lock2:unlock()
             lock3:unlock()
             collectgarbage("collect")
-        ';
+        }
     }
 --- request
 GET /t
@@ -433,7 +433,7 @@ GET /t
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
-        content_by_lua '
+        content_by_lua_block {
             local lock = require "resty.lock"
             for i = 1, 2 do
                 local lock1 = lock:new("cache_locks", { timeout = 0 })
@@ -451,7 +451,7 @@ GET /t
                 local ok, err = lock2:unlock()
                 ngx.say("lock 2: unlock: ", ok, ", ", err)
             end
-        ';
+        }
     }
 --- request
 GET /t
