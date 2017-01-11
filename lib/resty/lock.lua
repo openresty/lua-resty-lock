@@ -6,10 +6,8 @@ local ffi_new = ffi.new
 local shared = ngx.shared
 local sleep = ngx.sleep
 local log = ngx.log
-local shdict_mt
 local debug = ngx.config.debug
 local setmetatable = setmetatable
-local getmetatable = getmetatable
 local tonumber = tonumber
 
 local _M = { _VERSION = '0.04' }
@@ -131,9 +129,6 @@ function _M.lock(self, key)
     local ok, err = dict:add(key, true, exptime)
     if ok then
         cdata.key_id = ref_obj(key)
-        if not shdict_mt then
-            shdict_mt = getmetatable(dict)
-        end
         return 0
     end
     if err ~= "exists" then
@@ -157,9 +152,6 @@ function _M.lock(self, key)
         local ok, err = dict:add(key, true, exptime)
         if ok then
             cdata.key_id = ref_obj(key)
-            if not shdict_mt then
-                shdict_mt = getmetatable(dict)
-            end
             return elapsed
         end
 
