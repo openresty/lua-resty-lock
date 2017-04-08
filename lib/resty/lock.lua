@@ -12,7 +12,7 @@ local debug = ngx.config.debug
 local setmetatable = setmetatable
 local tonumber = tonumber
 
-local _M = { _VERSION = '0.04' }
+local _M = { _VERSION = '0.06' }
 local mt = { __index = _M }
 
 local ERR = ngx.ERR
