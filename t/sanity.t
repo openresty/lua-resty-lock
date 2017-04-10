@@ -468,3 +468,136 @@ lock 2: unlock: nil, unlocked
 --- no_error_log
 [error]
 
+
+
+=== TEST 14: serial lock and unlock with safe_add
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock = require "resty.lock"
+            for i = 1, 2 do
+                local lock = lock:new("cache_locks", {safe_add = true})
+                local elapsed, err = lock:lock("foo")
+                ngx.say("lock: ", elapsed, ", ", err)
+                local ok, err = lock:unlock()
+                if not ok then
+                    ngx.say("failed to unlock: ", err)
+                end
+                ngx.say("unlock: ", ok)
+            end
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock: 0, nil
+unlock: 1
+lock: 0, nil
+unlock: 1
+
+--- no_error_log
+[error]
+
+
+
+=== TEST 15: the "safe_add" option is true: exhausting the shm zone memory
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock  = require "resty.lock"
+            local cache = ngx.shared.cache_locks
+
+            cache:flush_all()
+            function full_dict( dict )
+                for i = 1, 10000 do
+                    local ok, err = dict:safe_set(string.rep("2", 2) .. i, string.rep("2", 5) .. i)
+                    if not ok then
+                        return
+                    end
+                end
+            end
+            full_dict(cache)
+
+            local lock = lock:new("cache_locks", {safe_add = true, timeout = 0})
+            local elapsed, err = lock:lock("foo")
+            ngx.say("lock: ", elapsed, ", ", err)
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock: nil, no memory
+
+--- no_error_log
+[error]
+
+
+
+=== TEST 16: the "safe_add" option is false: exhausting the shm zone memory
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock  = require "resty.lock"
+            local cache = ngx.shared.cache_locks
+
+            cache:flush_all()
+            function full_dict( dict )
+                for i = 1, 10000 do
+                    local ok, err = dict:safe_set(string.rep("2", 2) .. i, string.rep("2", 5) .. i)
+                    if not ok then
+                        return
+                    end
+                end
+            end
+            full_dict(cache)
+
+            local lock = lock:new("cache_locks", {safe_add = false, timeout = 0})
+            local elapsed, err = lock:lock("foo")
+            ngx.say("lock: ", elapsed, ", ", err)
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock: 0, nil
+
+--- no_error_log
+[error]
+
+
+
+=== TEST 17: the "safe_add" option is off by default: exhausting the shm zone memory
+--- http_config eval: $::HttpConfig
+--- config
+    location = /t {
+        content_by_lua '
+            local lock  = require "resty.lock"
+            local cache = ngx.shared.cache_locks
+
+            cache:flush_all()
+            function full_dict( dict )
+                for i = 1, 10000 do
+                    local ok, err = dict:safe_set(string.rep("2", 2) .. i, string.rep("2", 5) .. i)
+                    if not ok then
+                        return
+                    end
+                end
+            end
+            full_dict(cache)
+
+            local lock = lock:new("cache_locks", {timeout = 0})
+            local elapsed, err = lock:lock("foo")
+            ngx.say("lock: ", elapsed, ", ", err)
+        ';
+    }
+--- request
+GET /t
+--- response_body
+lock: 0, nil
+
+--- no_error_log
+[error]
+

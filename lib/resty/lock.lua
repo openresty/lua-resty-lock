@@ -87,13 +87,14 @@ function _M.new(_, dict_name, opts)
     cdata.key_id = 0
     cdata.dict_id = ref_obj(dict)
 
-    local timeout, exptime, step, ratio, max_step
+    local timeout, exptime, step, ratio, max_step, safe_add
     if opts then
         timeout = opts.timeout
         exptime = opts.exptime
         step = opts.step
         ratio = opts.ratio
         max_step = opts.max_step
+        safe_add = opts.safe_add
     end
 
     if not exptime then
@@ -111,6 +112,7 @@ function _M.new(_, dict_name, opts)
     local self = {
         cdata = cdata,
         dict = dict,
+        dict_add = safe_add and dict.safe_add or dict.add,
         timeout = timeout or 5,
         exptime = exptime,
         step = step or 0.001,
@@ -132,7 +134,8 @@ function _M.lock(self, key)
         return nil, "locked"
     end
     local exptime = self.exptime
-    local ok, err = dict:add(key, true, exptime)
+    local dict_add = self.dict_add
+    local ok, err = dict_add(dict, key, true, exptime)
     if ok then
         cdata.key_id = ref_obj(key)
         return 0
@@ -151,7 +154,7 @@ function _M.lock(self, key)
         elapsed = elapsed + step
         timeout = timeout - step
 
-        local ok, err = dict:add(key, true, exptime)
+        local ok, err = dict_add(dict, key, true, exptime)
         if ok then
             cdata.key_id = ref_obj(key)
             return elapsed
