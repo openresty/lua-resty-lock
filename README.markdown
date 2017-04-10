@@ -123,11 +123,13 @@ Specifies the maximal step size (i.e., sleep interval, in seconds) allowed. See 
 
 lock
 ----
-`syntax: elapsed, err = obj:lock(key)`
+`syntax: elapsed, err = obj:lock(key, exptime)`
 
 Tries to lock a key across all the Nginx worker processes in the current Nginx server instance. Different keys are different locks.
 
 The length of the key string must not be larger than 65535 bytes.
+
+The optional `exptime` argument allows to set an expiration time (in seconds) for the key.
 
 Returns the waiting time (in seconds) if the lock is successfully acquired. Otherwise returns `nil` and a string describing the error.
 

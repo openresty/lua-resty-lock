@@ -121,7 +121,7 @@ function _M.new(_, dict_name, opts)
 end
 
 
-function _M.lock(self, key)
+function _M.lock(self, key, exptime)
     if not key then
         return nil, "nil key"
     end
@@ -131,7 +131,7 @@ function _M.lock(self, key)
     if cdata.key_id > 0 then
         return nil, "locked"
     end
-    local exptime = self.exptime
+    local exptime = exptime or self.exptime
     local ok, err = dict:add(key, true, exptime)
     if ok then
         cdata.key_id = ref_obj(key)
@@ -144,6 +144,9 @@ function _M.lock(self, key)
     local step = self.step
     local ratio = self.ratio
     local timeout = self.timeout
+    if timeout and timeout > exptime then
+        timeout = exptime
+    end
     local max_step = self.max_step
     local elapsed = 0
     while timeout > 0 do
