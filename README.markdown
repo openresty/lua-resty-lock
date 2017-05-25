@@ -14,6 +14,7 @@ Table of Contents
     * [new](#new)
     * [lock](#lock)
     * [unlock](#unlock)
+    * [expire](#expire)
 * [For Multiple Lua Light Threads](#for-multiple-lua-light-threads)
 * [For Cache Locks](#for-cache-locks)
 * [Prerequisites](#prerequisites)
@@ -161,6 +162,18 @@ Releases the lock held by the current `resty.lock` object instance.
 Returns `1` on success. Returns `nil` and a string describing the error otherwise.
 
 If you call `unlock` when no lock is currently held, the error "unlocked" will be returned.
+
+expire
+------
+`syntax: ok, err = obj:expire(timeout)`
+
+Sets the TTL of the lock held by the current `resty.lock` object instance. This will reset the
+timeout of the lock to `timeout` seconds if it is given, otherwise the `timeout` provided while
+calling [new](#new) will be used.
+
+Returns `1` on success. Returns `nil` and a string describing the error otherwise.
+
+If you call `expire` when no lock is currently held, the error "unlocked" will be returned.
 
 [Back to TOC](#table-of-contents)
 
