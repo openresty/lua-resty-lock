@@ -171,6 +171,10 @@ Sets the TTL of the lock held by the current `resty.lock` object instance. This 
 timeout of the lock to `timeout` seconds if it is given, otherwise the `timeout` provided while
 calling [new](#new) will be used.
 
+Note that the `timeout` supplied inside this function is independent from the `timeout` provided while
+calling [new](#new). Calling `expire()` will not change the `timeout` value specified inside [new](#new)
+and subsequent `expire(nil)` call will still use the `timeout` number from [new](#new).
+
 Returns `1` on success. Returns `nil` and a string describing the error otherwise.
 
 If you call `expire` when no lock is currently held, the error "unlocked" will be returned.
