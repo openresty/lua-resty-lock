@@ -135,6 +135,7 @@ function _M.lock(self, key)
     local ok, err = dict:add(key, true, exptime)
     if ok then
         cdata.key_id = ref_obj(key)
+        self.key = key
         return 0
     end
     if err ~= "exists" then
@@ -154,6 +155,7 @@ function _M.lock(self, key)
         local ok, err = dict:add(key, true, exptime)
         if ok then
             cdata.key_id = ref_obj(key)
+            self.key = key
             return elapsed
         end
 
@@ -190,6 +192,27 @@ function _M.unlock(self)
     cdata.key_id = 0
 
     return 1
+end
+
+
+function _M.expire(self, time)
+    local dict = self.dict
+    local cdata = self.cdata
+    local key_id = tonumber(cdata.key_id)
+    if key_id <= 0 then
+        return nil, "unlocked"
+    end
+
+    if not time then
+        time = self.exptime
+    end
+
+    local ok, err =  dict:replace(self.key, true, time)
+    if not ok then
+        return nil, err
+    end
+
+    return true
 end
 
 
