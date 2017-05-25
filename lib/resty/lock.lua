@@ -212,7 +212,7 @@ function _M.expire(self, time)
         return nil, err
     end
 
-    return 1
+    return true
 end
 
 

@@ -510,15 +510,15 @@ lock 2: unlock: nil, unlocked
 GET /t
 --- response_body
 lock 1: lock: 0, nil
-lock 1: expire: 1, nil
+lock 1: expire: true, nil
 lock 2: lock: nil, timeout
-lock 1: expire: 1, nil
+lock 1: expire: true, nil
 lock 2: lock: nil, timeout
 lock 1: unlock: 1, nil
 lock 1: lock: 0, nil
-lock 1: expire: 1, nil
+lock 1: expire: true, nil
 lock 2: lock: nil, timeout
-lock 1: expire: 1, nil
+lock 1: expire: true, nil
 lock 2: lock: nil, timeout
 lock 1: unlock: 1, nil
 
