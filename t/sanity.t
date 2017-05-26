@@ -480,6 +480,9 @@ lock 2: unlock: nil, unlocked
                 local lock1 = lock:new("cache_locks", { timeout = 0, exptime = 0.1 })
                 local lock2 = lock:new("cache_locks", { timeout = 0, exptime = 0.1 })
 
+                local exp, err = lock1:expire()
+                ngx.say("lock 1: expire: ", exp, ", ", err)
+
                 local elapsed, err = lock1:lock("foo")
                 ngx.say("lock 1: lock: ", elapsed, ", ", err)
 
@@ -501,26 +504,40 @@ lock 2: unlock: nil, unlocked
                 local elapsed, err = lock2:lock("foo")
                 ngx.say("lock 2: lock: ", elapsed, ", ", err)
 
-                local ok, err = lock1:unlock()
-                ngx.say("lock 1: unlock: ", ok, ", ", err)
+                ngx.sleep(0.1)
+
+                local elapsed, err = lock2:lock("foo")
+                ngx.say("lock 2: lock: ", elapsed, ", ", err)
+
+                local ok, err = lock2:unlock()
+                ngx.say("lock 2: unlock: ", ok, ", ", err)
+
+                local exp, err = lock2:expire(0.2)
+                ngx.say("lock 2: expire: ", exp, ", ", err)
             end
         }
     }
 --- request
 GET /t
 --- response_body
+lock 1: expire: nil, unlocked
 lock 1: lock: 0, nil
 lock 1: expire: true, nil
 lock 2: lock: nil, timeout
 lock 1: expire: true, nil
 lock 2: lock: nil, timeout
-lock 1: unlock: 1, nil
+lock 2: lock: 0, nil
+lock 2: unlock: 1, nil
+lock 2: expire: nil, unlocked
+lock 1: expire: nil, unlocked
 lock 1: lock: 0, nil
 lock 1: expire: true, nil
 lock 2: lock: nil, timeout
 lock 1: expire: true, nil
 lock 2: lock: nil, timeout
-lock 1: unlock: 1, nil
+lock 2: lock: 0, nil
+lock 2: unlock: 1, nil
+lock 2: expire: nil, unlocked
 
 --- no_error_log
 [error]
