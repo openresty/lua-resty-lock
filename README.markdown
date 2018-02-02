@@ -17,6 +17,7 @@ Table of Contents
     * [expire](#expire)
 * [For Multiple Lua Light Threads](#for-multiple-lua-light-threads)
 * [For Cache Locks](#for-cache-locks)
+* [Limitations](#limitations)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [TODO](#todo)
@@ -163,6 +164,8 @@ Returns `1` on success. Returns `nil` and a string describing the error otherwis
 
 If you call `unlock` when no lock is currently held, the error "unlocked" will be returned.
 
+[Back to TOC](#table-of-contents)
+
 expire
 ------
 `syntax: ok, err = obj:expire(timeout)`
@@ -294,6 +297,14 @@ Several important things to note in the example above:
 1. You need to release the lock as soon as possible, even when some other unrelated errors happen.
 2. You need to update the cache with the result got from the backend *before* releasing the lock so other threads already waiting on the lock can get cached value when they get the lock afterwards.
 3. When the backend returns no value at all, we should handle the case carefully by inserting some stub value into the cache.
+
+[Back to TOC](#table-of-contents)
+
+Limitations
+===========
+
+Some of this library's API functions may yield. So do not call those functions in `ngx_lua` module contexts where yielding is not supported (yet), like `init_by_lua*`,
+`init_worker_by_lua*`, `header_filter_by_lua*`, `body_filter_by_lua*`, `balancer_by_lua*`, and `log_by_lua*`.
 
 [Back to TOC](#table-of-contents)
 
