@@ -328,12 +328,12 @@ bundle by passing the `--with-luajit` option to its `./configure` script. No ext
 If you want to use this library with your own Nginx build (with ngx_lua), then you need to
 ensure you are using at least ngx_lua 0.8.10. Also, You need to configure
 the [lua_package_path](https://github.com/openresty/lua-nginx-module#lua_package_path) directive to
-add the path of your lua-resty-lock source tree to ngx_lua's Lua module search path, as in
+add the path of your lua-resty-lock and lua-resty-core source directories to ngx_lua's Lua module search path, as in
 
 ```nginx
     # nginx.conf
     http {
-        lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";
+        lua_package_path "/path/to/lua-resty-lock/lib/?.lua;/path/to/lua-resty-core/lib/?.lua;;";
         ...
     }
 ```
@@ -343,6 +343,9 @@ and then load the library in Lua:
 ```lua
     local resty_lock = require "resty.lock"
 ```
+
+Note that this library depends on the [lua-resty-core](https://github.com/openresty/lua-resty-core) library
+which is also enabled by default in the OpenResty bundle.
 
 [Back to TOC](#table-of-contents)
 
