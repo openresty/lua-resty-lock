@@ -43,7 +43,7 @@ Synopsis
 http {
     # you do not need the following line if you are using the
     # OpenResty bundle:
-    lua_package_path "/path/to/lua-resty-lock/lib/?.lua;;";
+    lua_package_path "/path/to/lua-resty-core/lib/?.lua;/path/to/lua-resty-lock/lib/?.lua;;";
 
     lua_shared_dict my_locks 100k;
 
@@ -151,6 +151,8 @@ Common errors for this method call is
 : The current `resty.lock` object instance is already holding a lock (not necessarily of the same key).
 
 Other possible errors are from ngx_lua's shared dictionary API.
+
+It is required to create different `resty.lock` instances for multiple simultaneous locks (i.e., those around different keys).
 
 [Back to TOC](#table-of-contents)
 
