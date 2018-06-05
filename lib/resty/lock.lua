@@ -1,6 +1,8 @@
 -- Copyright (C) Yichun Zhang (agentzh)
 
 
+require "resty.core.shdict"  -- enforce this to avoid dead locks
+
 local ffi = require "ffi"
 local ffi_new = ffi.new
 local shared = ngx.shared

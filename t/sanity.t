@@ -10,7 +10,7 @@ plan tests => repeat_each() * (blocks() * 3);
 my $pwd = cwd();
 
 our $HttpConfig = qq{
-    lua_package_path "$pwd/lib/?.lua;;";
+    lua_package_path "../lua-resty-core/lib/?.lua;lib/?.lua;;";
     lua_package_cpath "/usr/local/openresty-debug/lualib/?.so;/usr/local/openresty/lualib/?.so;;";
     lua_shared_dict cache_locks 100k;
 };
