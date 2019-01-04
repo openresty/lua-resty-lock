@@ -6,7 +6,6 @@ require "resty.core.shdict"  -- enforce this to avoid dead locks
 local ffi = require "ffi"
 local ffi_new = ffi.new
 local shared = ngx.shared
-local sleep = ngx.sleep
 local log = ngx.log
 local max = math.max
 local min = math.min
@@ -25,6 +24,17 @@ local FREE_LIST_REF = 0
 local memo = {}
 if debug then _M.memo = memo end
 
+-- ngx.sleep is disabled when init or init_worker phase, so here need a judgement condition.
+local old_sleep = ngx.sleep
+ngx.sleep = function(s)
+    local phase = ngx.get_phase()
+    if phase == "init" or phase == "init_worker" then
+        os.execute(string.format("sleep %f", s))
+    else
+        old_sleep(s)
+    end
+end
+local sleep = ngx.sleep
 
 local function ref_obj(key)
     if key == nil then
