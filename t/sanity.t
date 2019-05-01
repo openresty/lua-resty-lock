@@ -319,6 +319,7 @@ GET /t
 
 --- no_error_log
 [error]
+--- skip_eval: 3: system("$NginxBinary -V 2>&1 | grep -- '--with-debug'") ne 0
 
 
 
@@ -361,6 +362,7 @@ GET /t
 
 --- no_error_log
 [error]
+--- skip_eval: 3: system("$NginxBinary -V 2>&1 | grep -- '--with-debug'") ne 0
 
 
 
@@ -426,6 +428,7 @@ GET /t
 4
 --- no_error_log
 [error]
+--- skip_eval: 3: system("$NginxBinary -V 2>&1 | grep -- '--with-debug'") ne 0
 
 
 
