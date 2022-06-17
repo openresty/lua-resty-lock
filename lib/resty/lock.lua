@@ -119,7 +119,8 @@ function _M.new(_, dict_name, opts)
         ratio = ratio or 2,
         max_step = max_step or 0.5,
     }
-    return setmetatable(self, mt)
+    setmetatable(self, mt)
+    return self
 end
 
 
