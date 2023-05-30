@@ -32,7 +32,7 @@ Table of Contents
 Status
 ======
 
-This library is still under early development and is production ready.
+This library is production ready.
 
 Synopsis
 ========
