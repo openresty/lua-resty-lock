@@ -173,7 +173,7 @@ expire
 `syntax: ok, err = obj:expire(timeout)`
 
 Sets the TTL of the lock held by the current `resty.lock` object instance. This will reset the
-timeout of the lock to `timeout` seconds if it is given, otherwise the `timeout` provided while
+timeout of the lock to `timeout` seconds if it is given, otherwise the `exptime` provided while
 calling [new](#new) will be used.
 
 Note that the `timeout` supplied inside this function is independent from the `timeout` provided while
