@@ -1,7 +1,7 @@
 -- Copyright (C) Yichun Zhang (agentzh)
 
 
-require "resty.core.shdict"  -- enforce this to avoid dead locks
+local shdict = require "resty.core.shdict"  -- enforce this to avoid dead locks
 
 local ffi = require "ffi"
 local ffi_new = ffi.new
@@ -13,6 +13,9 @@ local min = math.min
 local debug = ngx.config.debug
 local setmetatable = setmetatable
 local tonumber = tonumber
+local worker_pid = ngx.worker.pid
+local now = ngx.now
+local owner_sequence = 0
 
 local _M = { _VERSION = '0.09' }
 local mt = { __index = _M }
@@ -61,12 +64,13 @@ local function gc_lock(cdata)
     -- print("key_id: ", key_id, ", key: ", memo[key_id], "dict: ",
     --       type(memo[cdata.dict_id]))
     if key_id > 0 then
-        local key = memo[key_id]
+        local ownership = memo[key_id]
+        local key = ownership.key
         unref_obj(key_id)
         local dict = memo[dict_id]
         -- print("dict.delete type: ", type(dict.delete))
-        local ok, err = dict:delete(key)
-        if not ok then
+        local ok, err = dict:compare_expire(key, ownership.token)
+        if not ok and err ~= "lock ownership lost" then
             log(ERR, 'failed to delete key "', key, '": ', err)
         end
         cdata.key_id = 0
@@ -85,6 +89,10 @@ function _M.new(_, dict_name, opts)
     if not dict then
         return nil, "dictionary not found"
     end
+    if not shdict.has_atomic_ownership or not dict.compare_expire then
+        return nil, "atomic ownership operations require an updated lua-resty-core and nginx"
+    end
+
     local cdata = ffi_new(ctype)
     cdata.key_id = 0
     cdata.dict_id = ref_obj(dict)
@@ -135,9 +143,11 @@ function _M.lock(self, key)
         return nil, "locked"
     end
     local exptime = self.exptime
-    local ok, err = dict:add(key, true, exptime)
+    owner_sequence = owner_sequence + 1
+    local token = worker_pid() .. ":" .. now() .. ":" .. owner_sequence
+    local ok, err = dict:add(key, token, exptime)
     if ok then
-        cdata.key_id = ref_obj(key)
+        cdata.key_id = ref_obj({ key = key, token = token })
         self.key = key
         return 0
     end
@@ -155,9 +165,9 @@ function _M.lock(self, key)
         elapsed = elapsed + step
         timeout = timeout - step
 
-        local ok, err = dict:add(key, true, exptime)
+        local ok, err = dict:add(key, token, exptime)
         if ok then
-            cdata.key_id = ref_obj(key)
+            cdata.key_id = ref_obj({ key = key, token = token })
             self.key = key
             return elapsed
         end
@@ -185,10 +195,12 @@ function _M.unlock(self)
         return nil, "unlocked"
     end
 
-    local key = memo[key_id]
+    local ownership = memo[key_id]
+    local key = ownership.key
     unref_obj(key_id)
+    cdata.key_id = 0
 
-    local ok, err = dict:delete(key)
+    local ok, err = dict:compare_expire(key, ownership.token)
     if not ok then
         return nil, err
     end
@@ -210,7 +222,8 @@ function _M.expire(self, time)
         time = self.exptime
     end
 
-    local ok, err =  dict:replace(self.key, true, time)
+    local ownership = memo[key_id]
+    local ok, err = dict:compare_expire(self.key, ownership.token, time)
     if not ok then
         return nil, err
     end

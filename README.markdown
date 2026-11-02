@@ -417,3 +417,13 @@ See Also
 * OpenResty: http://openresty.org
 
 [Back to TOC](#table-of-contents)
+
+Lock ownership
+--------------
+
+Each acquisition has a unique ownership token. Unlock, expiration renewal and
+garbage collection compare that token atomically before changing the shared
+entry, so an expired owner cannot modify a successor's lock. This requires the
+matching lua-resty-core and HTTP/Stream Lua modules that provide
+`compare_expire`; `new()` reports an error on an older runtime. Upgrade those
+components together.

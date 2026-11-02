@@ -473,7 +473,7 @@ lock 2: unlock: nil, unlocked
 
 
 
-=== TEST 13: expire()
+=== TEST 14: expire()
 --- http_config eval: $::HttpConfig
 --- config
     location = /t {
